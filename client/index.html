@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Sockets</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after{
+      box-sizing: border-box;
+    }
+    :root{
+      color-scheme: light dark;
+    }
+    body{
+      margin: 0;
+      font-size: large;
+      font-family: 'Arial Narrow Bold', sans-serif;
+      align-items: center;
+      display: grid;
+      height: 100vh;
+      padding: 100px 36px;
+      place-content: center;
+      grid-template-rows: 1fr;
+    }
+    ::-webkit-scrollbar{
+      background-color: #66C;
+      width: 3px;
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-track{
+      background-color: #222;
+    }
+    #chat{
+      overflow-y:scroll;
+      background-color:#222;
+      border: 2px solid #44C;
+      border-radius: 5px;
+      height: 100%;
+      width: 350px;
+      position: relative;
+      filter: blur(1px);
+      scroll-behavior: smooth;
+      padding-bottom: 48px;
+    }
+    #messages{
+      display:flex;
+      flex-direction: column;
+      list-style: none;
+      margin: 0;padding: 0;
+    }
+    
+    #messages > li{
+      align-self: flex-start;
+      width: fit-content;
+      max-width: 70%;
+      border-radius: 5px;
+      padding: .5rem 1rem;
+      background-color: #777;
+      margin: 2px;
+      word-wrap: break-word;
+    }
+    #messages > li.User {
+      align-self: flex-end;
+      background-color: #756;
+      text-align: right;
+    }
+    #messages >p.User {
+      align-self: flex-start;
+      margin: 0px 5px;
+      padding: 0;
+      text-align: right;
+      font-size: 10px;
+    }
+    #form{
+      bottom: 0;
+      display: flex;
+      height: 48px;
+      left: 0;
+      padding: 4px;
+      position: absolute;
+      right:0;
+    }
+    #input{
+      border-radius:9999px;
+      border: 1px solid antiquewhite;
+      flex: 1;
+      margin: 4px;
+      padding: 0 8px;
+
+    }
+    #form>button{
+      border-radius: 10px;
+      background: rgb(50, 50, 255);
+      border: 0;
+      margin: 4px;
+    }
+    #form>button:hover{
+      background: rgb(15, 15, 183);
+    }
+    #Login{
+      padding: 10px;
+      justify-content:space-around;
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 350px;
+      max-height:10rem;
+      border-radius: 5px;
+      position:absolute;
+      transform: translate(50%, -50%);
+      top: 50%;
+      right: 50%;
+      z-index: 1;
+      background-color: #4444DDbb;
+    }
+    #Login>button{
+      align-items: center;
+      border-radius: 3px;
+      margin: auto;
+      flex: 1;
+      min-height: 40px;
+      background-color: #66D;
+      border: 0;
+    }
+    #Login>input{
+      height:40px;
+      padding: 10px;
+      max-width:16rem ;
+      margin: 10px 0px;
+      border-radius: 8px;
+      border: 0;
+      background-color: #222;
+    }
+  </style>
+</head>
+<body>
+  <form id="Login">
+    <p style="margin: 7px 0px;">Ingresa un nombre</p>
+    <input type="text" name="User" placeholder="Maximo 25 letras o explota"
+    autocomplete="off">
+    <button type="submit">Chatear</button>
+  </form>
+  <section id="chat">
+    <ul id="messages">
+      <p  class="User">David</p>
+      <li>Chat</li>
+      <li class="User">Ya vale</li>
+      <li class="User">ya ves</li>
+    </ul>
+    <form id="form">
+      <input type="text" name="message" id="input" placeholder="Send a mesagge"
+      autocomplete="off">
+      <button type="submit">Send</button>
+    </form>
+  </section>
+</body>
+<script>
+  const messages = document.getElementById('messages')
+  const form = document.getElementById('form')
+  const input = document.getElementById('input')
+  const login = document.getElementById('Login')
+  const chat = document.getElementById('chat')
+
+  const getUserName= ()=>{
+    const UserName = localStorage.getItem('username')
+    if(UserName) {
+      login.style.display='none'
+      chat.style.filter= 'none'
+      return UserName
+    }
+    const newUserName = login.querySelector('input')
+    login.addEventListener('submit', (e)=>{
+      e.preventDefault()
+      login.style.display='none'
+      chat.style.filter= 'none'
+      if (newUserName.value) {
+        localStorage.setItem('username', newUserName.value)
+        return newUserName,value
+      }
+    })
+  }
+  const socket = io({
+    auth:{
+      UserName:getUserName(),
+      serverOffset: 0
+    }
+  })
+  
+  socket.emit('User',socket.auth.UserName)
+
+  let lastUserMsg = ''
+
+  socket.on('chat message',async({msg, user,serverOffset})=>{
+    const message = `<p class="User">${user}</p><li>${msg}</li>`
+    const messageSU = `<li>${msg}</li>`
+    const userMessage = `<li class="User">${msg}</li>`
+    socket.auth.serverOffset = serverOffset + 1
+    if (socket.auth.UserName===user) messages.insertAdjacentHTML("beforeend",userMessage)
+    else if(user === undefined || user==lastUserMsg) messages.insertAdjacentHTML("beforeend",messageSU)
+    else  messages.insertAdjacentHTML("beforeend",message)
+    lastUserMsg = user
+    messages.scrollTop = messages.scrollHeight
+  })
+
+  form.addEventListener('submit', (e)=>{
+    e.preventDefault()
+    if(input.value){
+      socket.emit('chat message', {msg:input.value,user:socket.auth.UserName})
+      input.value=''
+    }
+  })
+</script>
+</html>
