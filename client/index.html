@@ -43,7 +43,6 @@
       position: relative;
       filter: blur(1px);
       scroll-behavior: smooth;
-      padding-bottom: 48px;
     }
     #messages{
       display:flex;
@@ -75,13 +74,12 @@
       font-size: 10px;
     }
     #form{
-      bottom: 0;
       display: flex;
       height: 48px;
       left: 0;
-      padding: 4px;
-      position: absolute;
+      position: sticky;
       right:0;
+      bottom: 0;
     }
     #input{
       border-radius:9999px;
@@ -201,7 +199,7 @@
     else if(user === undefined || user==lastUserMsg) messages.insertAdjacentHTML("beforeend",messageSU)
     else  messages.insertAdjacentHTML("beforeend",message)
     lastUserMsg = user
-    messages.scrollTop = messages.scrollHeight
+    chat.scrollTop = chat.scrollHeight
   })
 
   form.addEventListener('submit', (e)=>{

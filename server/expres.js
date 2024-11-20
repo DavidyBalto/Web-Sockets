@@ -2,7 +2,7 @@ import expres from 'express'
 
 import {Server} from 'socket.io'
 import { createServer } from 'node:http'
-import { ChatModel } from '../models/TursoDB.js'
+import { ChatModel } from '../models/SQLocal.js'
 
 const port = process.env.PORT ?? 1234
 
