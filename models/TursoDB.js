@@ -25,7 +25,7 @@ export class ChatModel{
     const UserV = await turso.execute({
       sql:'SELECT user_Id FROM users WHERE username = ?',
       args: [User]
-    }) 
+    })
     if (UserV.rows.length === 0) {
       await turso.execute({
         sql:'INSERT INTO users (username) VALUES (?)',
@@ -61,7 +61,6 @@ export class ChatModel{
       row.userName = userName.rows[0].username
       return row
     }))
-    console.log(result.userName)
     return result
     }catch(e){
       return e

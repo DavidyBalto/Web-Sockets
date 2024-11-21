@@ -11,8 +11,8 @@ const server = new createServer(app)
 const io = new Server (server)
 
 io.on('connection', async (socket)=> {
-  socket.on('User',async (User)=>{
-    await ChatModel.NewUser(User)
+  socket.on('User',async ({user})=>{
+    await ChatModel.NewUser(user)
   })
 
   socket.on('chat message',async ({msg, user})=>{

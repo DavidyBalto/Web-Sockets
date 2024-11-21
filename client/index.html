@@ -73,7 +73,7 @@
       text-align: right;
       font-size: 10px;
     }
-    #form{
+    #form{ 
       display: flex;
       height: 48px;
       left: 0;
@@ -142,10 +142,6 @@
   </form>
   <section id="chat">
     <ul id="messages">
-      <p  class="User">David</p>
-      <li>Chat</li>
-      <li class="User">Ya vale</li>
-      <li class="User">ya ves</li>
     </ul>
     <form id="form">
       <input type="text" name="message" id="input" placeholder="Send a mesagge"
@@ -175,7 +171,7 @@
       chat.style.filter= 'none'
       if (newUserName.value) {
         localStorage.setItem('username', newUserName.value)
-        return newUserName,value
+        return newUserName.value
       }
     })
   }
@@ -186,7 +182,7 @@
     }
   })
   
-  socket.emit('User',socket.auth.UserName)
+  socket.emit('User',{user:socket.auth.UserName})
 
   let lastUserMsg = ''
 
@@ -197,7 +193,7 @@
     socket.auth.serverOffset = serverOffset + 1
     if (socket.auth.UserName===user) messages.insertAdjacentHTML("beforeend",userMessage)
     else if(user === undefined || user==lastUserMsg) messages.insertAdjacentHTML("beforeend",messageSU)
-    else  messages.insertAdjacentHTML("beforeend",message)
+    else messages.insertAdjacentHTML("beforeend",message)
     lastUserMsg = user
     chat.scrollTop = chat.scrollHeight
   })
