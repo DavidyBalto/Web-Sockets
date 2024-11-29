@@ -10,7 +10,7 @@ const app = expres()
 const server = new createServer(app)
 const io = new Server (server)
 const CheckComands = (msg)=>{
-  const Comandos=['Flor']
+  const Comandos=['flor']
   if(msg.includes('/') && msg.includes('(') && msg.includes(')')){
   const Comando={
     Nombre:0,

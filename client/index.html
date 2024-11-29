@@ -290,7 +290,7 @@
     setTimeout(()=>requestAnimationFrame(animarFlor),90)
   }
 
-  socket.on('Flor',(Valores)=>{
+  socket.on('flor',(Valores)=>{
     flores.cantidad= (Valores[0]==='' || Valores[0]>10) ? flores.cantidad : Valores[0]
     petalos = Valores[1]&&Valores[1]>9 ? petalos : Valores[1]||petalos
     radio = Valores[2]&&Valores[2]>151 ? radio : Valores[2]||radio
@@ -301,7 +301,7 @@
     console.log(flores.cantidad)
     console.log(petalos)
     console.log(radio)
-    // animarFlor()
+    animarFlor()
   })
 </script>
 </html>
