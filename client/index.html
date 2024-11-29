@@ -294,7 +294,7 @@
 
   socket.on('flor',(Valores)=>{
     flores.cantidad= (Valores[0]==='' || Valores[0]>10) ? flores.cantidad : Valores[0]
-    petalos = Valores[1]&&Valores[1] ? petalos : Valores[1]||petalos
+    petalos = Valores[1]&&Valores[1]>9 ? petalos : Valores[1]||petalos
     radio = Valores[2]&&Valores[2]>151 ? radio : Valores[2]||radio
     for(let f=0; f<flores.cantidad;f++){
       flores.CordY[f]=Math.floor(Math.random()*canvas.height)
