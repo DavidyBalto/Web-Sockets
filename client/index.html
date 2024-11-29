@@ -213,7 +213,6 @@
   form.addEventListener('submit', (e)=>{
     e.preventDefault()
     if(input.value){
-      console.log(socket.auth.UserName)
       socket.emit('chat message', {msg:input.value,user:socket.auth.UserName})
       input.value=''
     }
@@ -227,15 +226,15 @@
   canvas.height=chat.offsetHeight
   canvas.width=chat.offsetWidth
   // Variables para la animación
-  let petalos = 5  // Número de pétalos
-  let radio = 90 // Radio de los pétalos
-  let radioDiv = 10 //Separacion entre radio de petalos
   const flores={ //Propiedades de las flores
     cantidad:5,
     CordX:[],
     CordY:[]
   }
-  const duracion = (radio/radioDiv)*200 //Duracion en base a el radio
+  let petalos = 5  // Número de pétalos
+  let radio = 90 // Radio de los pétalos
+  let radioDiv = 10 //Separacion entre radio de petalos
+  const duracion = (radio/radioDiv)*250 //Duracion en base a el radio
   let r = 20 //No se que hace asi que ahi se queda
   let inicio = null; //eeee... 
   // Tiempo inicial 
@@ -287,21 +286,21 @@
       return
     }
     dibujarCentro()
-    setTimeout(()=>requestAnimationFrame(animarFlor),90)
+    setTimeout(()=>requestAnimationFrame(animarFlor),100)
   }
 
   socket.on('flor',(Valores)=>{
     flores.cantidad= (Valores[0]==='' || Valores[0]>10) ? flores.cantidad : Valores[0]
-    petalos = Valores[1]&&Valores[1]>9 ? petalos : Valores[1]||petalos
+    petalos = Valores[1]&&Valores[1] ? petalos : Valores[1]||petalos
     radio = Valores[2]&&Valores[2]>151 ? radio : Valores[2]||radio
     for(let f=0; f<flores.cantidad;f++){
       flores.CordY[f]=Math.floor(Math.random()*canvas.height)
       flores.CordX[f]=Math.floor(Math.random()*canvas.width)
     }
-    console.log(flores.cantidad)
-    console.log(petalos)
-    console.log(radio)
     animarFlor()
+    flores.cantidad=5
+    petalos=5
+    radio=90
   })
 </script>
 </html>
