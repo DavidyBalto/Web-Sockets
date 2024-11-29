@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flor Animada</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      display: block;
+      margin: 20px auto;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <button id="btnDibujar">Dibujar Flor</button>
+  <canvas id="miCanvas" width="500" height="500"></canvas>
+
+  <script>
+    const canvas = document.getElementById('miCanvas');
+    const ctx = canvas.getContext('2d');
+    const btnDibujar = document.getElementById('btnDibujar');
+
+    // Variables para la animación
+    let petalos = 6; // Número de pétalos
+    let anguloActual = 0; // Ángulo inicial
+    let radio = 100; // Radio de los pétalos
+    let centroX = canvas.width / 2;
+    let centroY = canvas.height / 2;
+    let animando = false; // Control de animación
+
+    // Función para dibujar un pétalo
+    function dibujarPetalo(x, y, radio, angulo) {
+      ctx.beginPath();
+      const petaloX1 = x + radio * Math.cos(angulo - Math.PI / 6);
+      const petaloY1 = y + radio * Math.sin(angulo - Math.PI / 6);
+      const petaloX2 = x + radio * Math.cos(angulo + Math.PI / 6);
+      const petaloY2 = y + radio * Math.sin(angulo + Math.PI / 6);
+
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(petaloX1, petaloY1, x + radio * Math.cos(angulo), y + radio * Math.sin(angulo));
+      ctx.quadraticCurveTo(petaloX2, petaloY2, x, y);
+      ctx.fillStyle = `hsl(${(angulo * 180) / Math.PI}, 70%, 60%)`;
+      ctx.fill();
+    }
+
+    // Dibujar el centro de la flor
+    function dibujarCentro() {
+      ctx.beginPath();
+      ctx.arc(centroX, centroY, 20, 0, Math.PI * 2);
+      ctx.fillStyle = "yellow";
+      ctx.fill();
+    }
+
+    // Animación de los pétalos
+    function animarFlor() {
+      if (!animando) return; // Detener animación si no está activa
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar lienzo
+
+      for (let i = 0; i < petalos; i++) {
+        const angulo = anguloActual + (i * Math.PI * 2) / petalos;
+        dibujarPetalo(centroX, centroY, radio, angulo);
+      }
+
+      dibujarCentro();
+      anguloActual += 0.05; // Incrementar ángulo para animación
+      requestAnimationFrame(animarFlor); // Continuar animación
+    }
+
+    // Evento para iniciar la animación al hacer clic en el botón
+    btnDibujar.addEventListener('click', () => {
+      if (!animando) {
+        animando = true;
+        animarFlor();
+      }
+    });
+  </script>
+</body>
+</html>

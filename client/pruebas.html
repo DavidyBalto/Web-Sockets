@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flor Animada</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+    }
+    canvas {
+      border: 1px solid black;
+      display: block;
+      margin: 20px auto;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <button id="btnDibujar">Dibujar Flor</button>
+  <canvas id="miCanvas" width="500" height="500"></canvas>
+
+  <script>
+    const canvas = document.getElementById('miCanvas');
+    const ctx = canvas.getContext('2d');
+    const btnDibujar = document.getElementById('btnDibujar');
+
+    // Variables para la animación
+    let petalos = 5 ; // Número de pétalos
+    let radio = 150; // Radio de los pétalos
+    let centroX = canvas.width / 2;
+    let centroY = canvas.height / 2;
+    let animando = false; // Control de animación
+    let r = 20
+    let inicio = null; // Tiempo inicial
+    let duracion = ((radio/r))*102;
+    // Función para dibujar un pétalo
+    function dibujarPetalo(x, y, radio, angulo) {
+      let petaloX1 = x + radio * Math.cos(angulo - Math.PI / 6);
+      let petaloY1 = y + radio * Math.sin(angulo - Math.PI / 6);
+      let petaloX2 = x + radio * Math.cos(angulo + Math.PI / 6);
+      let petaloY2 = y + radio * Math.sin(angulo + Math.PI / 6);
+      const nrandom = 
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.quadraticCurveTo(petaloX1, petaloY1, x + radio * Math.cos(angulo), y + radio * Math.sin(angulo));
+        ctx.quadraticCurveTo(petaloX2, petaloY2, x, y);
+        //ctx.strokeStyle = '#CC5555'
+        ctx.strokeStyle =`hsl(${(angulo * 180) / Math.PI}, 70%, 60%)`
+        ctx.stroke();  
+    }
+
+    //dibujarPetalo(centroX, centroY, 150, 5);
+    
+    // Dibujar el centro de la flor
+    function dibujarCentro() {
+      ctx.beginPath()
+      ctx.arc(centroX, centroY, 20, 0, Math.PI * 2);
+      ctx.arc(54, 67, 20, 0, Math.PI * 2)
+      ctx.fillStyle = "#AA7722";
+      ctx.fill();
+    }
+    // Animación de los pétalos
+    function animarFlor(tiempo) {
+      if (!inicio) inicio = tiempo; // Establecer el tiempo inicial
+      const transcurrido = tiempo - inicio;
+      if (!animando) return; // Detener animación si no está activa
+            // Limpiar lienzo
+      for (let i = 0; i < petalos; i++) {
+        const angulo = (i * Math.PI * 2) / petalos;
+        dibujarPetalo(centroX, centroY, r, angulo);
+        dibujarPetalo(54, 67, r, angulo);
+      }
+      if(r>radio) r=20
+      r = r+20
+      dibujarCentro();
+      if(transcurrido>duracion) {
+        animando = false
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        r=20 
+        inicio = null;
+        return
+      }
+      setTimeout(()=>requestAnimationFrame(animarFlor),100)
+    }
+    // animando = true
+    // animarFlor()
+    // dibujarCentro()
+
+    // Evento para iniciar la animación al hacer clic en el botón
+    btnDibujar.addEventListener('click', () => {
+      if (!animando) {
+        animando = true;
+        animarFlor();
+      }
+      else{
+        animando = false
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        r=20 
+      }
+    })
+  </script>
+</body>
+</html>

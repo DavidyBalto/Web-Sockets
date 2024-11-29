@@ -35,7 +35,7 @@
     }
     #chat{
       overflow-y:scroll;
-      background-color:#222;
+      background-color:#222222bb;
       border: 2px solid #44C;
       border-radius: 5px;
       height: 100%;
@@ -80,6 +80,7 @@
       position: sticky;
       right:0;
       bottom: 0;
+      z-index: 9;
     }
     #input{
       border-radius:9999px;
@@ -110,7 +111,7 @@
       transform: translate(50%, -50%);
       top: 50%;
       right: 50%;
-      z-index: 1;
+      z-index: 10;
       background-color: #4444DDbb;
     }
     #Login>button{
@@ -131,9 +132,19 @@
       border: 0;
       background-color: #222;
     }
+    canvas {
+      display: none;
+      margin: auto;
+      position:fixed;
+      transform: translate(50%, -50%);
+      top: 50%;
+      right: 50%;
+      z-index: 8;
+    }
   </style>
 </head>
 <body>
+  <canvas id="Canvas"></canvas>
   <form id="Login">
     <p style="margin: 7px 0px;">Ingresa un nombre</p>
     <input type="text" name="User" placeholder="Maximo 25 letras o explota"
@@ -167,22 +178,23 @@
     const newUserName = login.querySelector('input')
     login.addEventListener('submit', (e)=>{
       e.preventDefault()
-      login.style.display='none'
-      chat.style.filter= 'none'
       if (newUserName.value) {
+        login.style.display='none'
+        chat.style.filter= 'none'
         localStorage.setItem('username', newUserName.value)
-        return newUserName.value
+        socket.emit('User', {user:newUserName.value})
+        socket.auth.UserName = newUserName.value
       }
     })
   }
   const socket = io({
     auth:{
-      UserName:getUserName(),
+      UserName: getUserName(),
       serverOffset: 0
     }
   })
-  
-  socket.emit('User',{user:socket.auth.UserName})
+
+  if(socket.auth.UserName)socket.emit('User',{user:socket.auth.UserName})
 
   let lastUserMsg = ''
 
@@ -201,9 +213,95 @@
   form.addEventListener('submit', (e)=>{
     e.preventDefault()
     if(input.value){
+      console.log(socket.auth.UserName)
       socket.emit('chat message', {msg:input.value,user:socket.auth.UserName})
       input.value=''
     }
+  })
+</script>
+<script>
+  const canvas = document.getElementById('Canvas');
+  const ctx = canvas.getContext('2d');
+  const btnDibujar = document.getElementById('btnDibujar');
+  
+  canvas.height=chat.offsetHeight
+  canvas.width=chat.offsetWidth
+  // Variables para la animación
+  let petalos = 5  // Número de pétalos
+  let radio = 90 // Radio de los pétalos
+  let radioDiv = 10 //Separacion entre radio de petalos
+  const flores={ //Propiedades de las flores
+    cantidad:5,
+    CordX:[],
+    CordY:[]
+  }
+  const duracion = (radio/radioDiv)*200 //Duracion en base a el radio
+  let r = 20 //No se que hace asi que ahi se queda
+  let inicio = null; //eeee... 
+  // Tiempo inicial 
+
+  function dibujarPetalo(x, y, radio, angulo,color) { // Función para dibujar un pétalo
+    let petaloX1 = x + radio * Math.cos(angulo - Math.PI / 6);
+    let petaloY1 = y + radio * Math.sin(angulo - Math.PI / 6);
+    let petaloX2 = x + radio * Math.cos(angulo + Math.PI / 6);
+    let petaloY2 = y + radio * Math.sin(angulo + Math.PI / 6);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(petaloX1, petaloY1, x + radio * Math.cos(angulo), y + radio * Math.sin(angulo));
+      ctx.quadraticCurveTo(petaloX2, petaloY2, x, y);
+      //ctx.strokeStyle = '#CC5555'
+      ctx.strokeStyle =`hsl(${(color*180) / Math.PI}, 70%, 60%)`
+      ctx.stroke();  
+  }
+  
+  function dibujarCentro() {
+    for (let f=0; f<flores.cantidad; f++){
+      ctx.beginPath()
+      ctx.arc(flores.CordX[f], flores.CordY[f], 15, 0, Math.PI * 2);
+      ctx.fillStyle = "#AA7722";
+      ctx.fill();
+    }
+  }
+  // Animación de los pétalos
+  function animarFlor(tiempo){
+    canvas.style.display='block'
+    
+    if (!inicio) inicio = tiempo // Establecer el tiempo inicial
+    const transcurrido = tiempo - inicio;
+    const Color = Math.floor(Math.random()*20)
+    
+    if(r<radio){
+      for(let Flor=0 ; Flor<flores.cantidad ; Flor++){
+      for (let f=0; f<petalos; f++){
+        let angulo = (f * Math.PI * 2) / petalos;
+        dibujarPetalo(flores.CordX[Flor],flores.CordY[Flor], r, angulo,Color)
+        }
+      }
+      r = r+radioDiv
+    }
+    if(transcurrido>duracion) {
+      canvas.style.display='none'
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      r=20
+      inicio = null;
+      return
+    }
+    dibujarCentro()
+    setTimeout(()=>requestAnimationFrame(animarFlor),90)
+  }
+
+  socket.on('Flor',(Valores)=>{
+    flores.cantidad= (Valores[0]==='' || Valores[0]>10) ? flores.cantidad : Valores[0]
+    petalos = Valores[1]&&Valores[1]>9 ? petalos : Valores[1]||petalos
+    radio = Valores[2]&&Valores[2]>151 ? radio : Valores[2]||radio
+    for(let f=0; f<flores.cantidad;f++){
+      flores.CordY[f]=Math.floor(Math.random()*canvas.height)
+      flores.CordX[f]=Math.floor(Math.random()*canvas.width)
+    }
+    console.log(flores.cantidad)
+    console.log(petalos)
+    console.log(radio)
+    // animarFlor()
   })
 </script>
 </html>

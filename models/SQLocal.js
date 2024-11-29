@@ -12,7 +12,7 @@ const connection = await mysql2.createConnection(config)
 
 export class ChatModel {
   static async NewUser(User) {
-    const [UserV] = await connection.query('SELECT user_Id FROM users WHERE username=  ?', User)
+    const [UserV] = await connection.query('SELECT user_Id FROM users WHERE username = ?', User)
     if (UserV.length === 0) {
       await connection.query('INSERT INTO users (username) VALUES (?)', User)  
       return ('Regristro Exitoso')
